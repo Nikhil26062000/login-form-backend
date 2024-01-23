@@ -1,0 +1,64 @@
+
+
+const express = require('express');
+const app = express();
+const Register = require("./models/register");
+require("./db/connection");
+const path = require('path');
+const PORT = process.env.PORT || 3000;
+const hbs = require('hbs');
+const templatePath = path.join(__dirname,"../templates/views")
+const partialsPath = path.join(__dirname,"../templates/partials")
+//const staticPath = path.join(__dirname, '../public');
+
+
+app.use(express.json());
+app.use(express.urlencoded({ extended:false }));
+
+// app.use(express.static(staticPath))
+app.set("view engine","hbs");
+app.set("views",templatePath);
+hbs.registerPartials(partialsPath)
+
+
+app.get('/', (req, res) => {
+    res.render("index");
+})
+
+app.get('/login', (req, res) => {
+    res.render("login");
+})
+
+app.get('/register', (req, res) => {
+    res.render("register");
+})
+
+app.post('/register', async(req, res) => {
+    try {
+        
+        const result = await Register.create({
+            firstname : req.body.firstName, //! firstname is of of mongodb schema , firstName is from registration form name
+            lastname : req.body.lastName,  //! lastname is of of mongodb schema , lastName is from registration form name
+            age : req.body.age,
+            email : req.body.email,
+            password : req.body.password,
+            phone : req.body.phone,
+            gender : req.body.gender
+
+        });
+        if(!result){
+            console.log("Error");
+            res.send("Data not added successfully");
+        }else{
+            console.log(result);
+            res.send("Data added successfully");
+        }
+       
+    } catch (error) {
+        console.log(error);
+    }
+})
+
+app.listen(PORT,()=>{
+    console.log("Server is running on Port " + PORT);
+})
