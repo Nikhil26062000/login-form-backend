@@ -74,6 +74,13 @@ app.post('/register', async(req, res) => {
 
         const token = await result.generateToken();
         // console.log(token);
+
+        res.cookie("jwt",token,{
+            expires: new Date(Date.now() + 30000),
+            httpOnly: true
+        });
+        
+
         if(!result){
             console.log("Error");
             res.send("Data not added successfully");
