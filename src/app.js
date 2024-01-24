@@ -1,5 +1,5 @@
 
-
+require('dotenv').config()
 const express = require('express');
 const app = express();
 const Register = require("./models/register");
@@ -49,11 +49,7 @@ app.post('/login', async(req, res) => {
         }else{
             res.status(404).send({"Login failed":result.password});
         }
-        // if(password ===result.password){
-        //     res.status(200).send({"Login successful":result.password});
-        // }else{
-           
-        // }
+        
    } catch (error) {
         console.log(error);
    }
@@ -72,11 +68,14 @@ app.post('/register', async(req, res) => {
             gender : req.body.gender
 
         });
+
+        const token = await result.generateToken();
+        // console.log(token);
         if(!result){
             console.log("Error");
             res.send("Data not added successfully");
         }else{
-            console.log(result);
+            // console.log(result);
             res.send("Data added successfully");
         }
        
