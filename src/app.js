@@ -45,6 +45,9 @@ app.post('/login', async(req, res) => {
 
         const isPassMatched = await bcrypt.compare(password,result.password)
         if(isPassMatched){
+            const token = await result.generateToken();
+            console.log("-------------Token while login---------");
+            console.log(token);
             res.status(200).send({"Login Successful":result.password})
         }else{
             res.status(404).send({"Login failed":result.password});
