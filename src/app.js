@@ -4,6 +4,7 @@ const express = require('express');
 const app = express();
 const Register = require("./models/register");
 require("./db/connection");
+const bcrypt = require('bcryptjs');
 const path = require('path');
 const PORT = process.env.PORT || 3000;
 const hbs = require('hbs');
@@ -31,6 +32,31 @@ app.get('/login', (req, res) => {
 
 app.get('/register', (req, res) => {
     res.render("register");
+})
+
+
+app.post('/login', async(req, res) => {
+   try {
+        const email = req.body.email;
+        const password = req.body.password;
+
+        const result = await Register.findOne({email});
+        console.log(result);
+
+        const isPassMatched = await bcrypt.compare(password,result.password)
+        if(isPassMatched){
+            res.status(200).send({"Login Successful":result.password})
+        }else{
+            res.status(404).send({"Login failed":result.password});
+        }
+        // if(password ===result.password){
+        //     res.status(200).send({"Login successful":result.password});
+        // }else{
+           
+        // }
+   } catch (error) {
+        console.log(error);
+   }
 })
 
 app.post('/register', async(req, res) => {
