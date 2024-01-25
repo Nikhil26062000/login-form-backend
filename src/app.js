@@ -5,16 +5,19 @@ const app = express();
 const Register = require("./models/register");
 require("./db/connection");
 const bcrypt = require('bcryptjs');
+var cookieParser = require('cookie-parser');
 const path = require('path');
 const PORT = process.env.PORT || 3000;
 const hbs = require('hbs');
 const templatePath = path.join(__dirname,"../templates/views")
 const partialsPath = path.join(__dirname,"../templates/partials")
+const auth = require("./middleware/auth");
 //const staticPath = path.join(__dirname, '../public');
 
 
 app.use(express.json());
 app.use(express.urlencoded({ extended:false }));
+app.use(cookieParser());
 
 // app.use(express.static(staticPath))
 app.set("view engine","hbs");
@@ -28,6 +31,11 @@ app.get('/', (req, res) => {
 
 app.get('/login', (req, res) => {
     res.render("login");
+})
+
+app.get("/secret",auth,(req, res) => {
+   // console.log(`Cookie is ${req.cookies.jwt}`)
+    res.render("secret");
 })
 
 app.get('/register', (req, res) => {
@@ -44,10 +52,16 @@ app.post('/login', async(req, res) => {
         console.log(result);
 
         const isPassMatched = await bcrypt.compare(password,result.password)
+
+        
         if(isPassMatched){
             const token = await result.generateToken();
             console.log("-------------Token while login---------");
             console.log(token);
+            res.cookie("jwt",token,{
+                expires: new Date(Date.now()+ 300000),
+                httpOnly: true
+            })
             res.status(200).send({"Login Successful":result.password})
         }else{
             res.status(404).send({"Login failed":result.password});
