@@ -38,6 +38,21 @@ app.get("/secret",auth,(req, res) => {
     res.render("secret");
 })
 
+app.get("/logout", auth , async(req, res) => {
+    res.clearCookie("jwt"); //! deleting cookie
+
+
+    //? updating the value of tokens field 
+    req.user.tokens = req.user.tokens.filter((ele)=>{
+        return ele.token!==req.token
+    })
+    //? saving current value of token in database
+    await req.user.save();
+    
+    console.log("Logout successfull")
+    res.res.render("login")
+})
+
 app.get('/register', (req, res) => {
     res.render("register");
 })
